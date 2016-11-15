@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job@2.2">
+  <actions/>
+  <description>Upload common-integration artifact to nexus</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>30</daysToKeep>
+        <numToKeep>-1</numToKeep>
+        <artifactDaysToKeep>1</artifactDaysToKeep>
+        <artifactNumToKeep>1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>action</name>
+          <description></description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>new_upload</string>
+              <string>retry_uploading</string>
+              <string>retry_tagging</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>changes</name>
+          <description>patch version : when you make backwards-compatible bug fixes.
+minor version : when you add functionality in a backwards-compatible manner
+major version : when you make incompatible API changes</description>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array">
+              <string>patch</string>
+              <string>minor</string>
+              <string>major</string>
+            </a>
+          </choices>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.scm.listtagsparameter.ListSubversionTagsParameterDefinition plugin="subversion@2.5.7">
+          <name>version</name>
+          <description>Select a Subversion entry</description>
+          <tagsDir>https://github.com/mjgaletto/common-integration.git</tagsDir>
+          <credentialsId>311e430a-7c0a-44db-aeb1-150e32b97f7f</credentialsId>
+          <tagsFilter>^.*tags/.*$</tagsFilter>
+          <reverseByDate>true</reverseByDate>
+          <reverseByName>false</reverseByName>
+          <defaultValue></defaultValue>
+          <maxTags>10</maxTags>
+        </hudson.scm.listtagsparameter.ListSubversionTagsParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps@2.4">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+      <configVersion>2</configVersion>
+      <userRemoteConfigs>
+        <hudson.plugins.git.UserRemoteConfig>
+          <url>git@github.com:mjgaletto/common-integration.git</url>
+          <credentialsId>da3983ee-8815-4e65-9a31-d3edfb263582</credentialsId>
+        </hudson.plugins.git.UserRemoteConfig>
+      </userRemoteConfigs>
+      <branches>
+        <hudson.plugins.git.BranchSpec>
+          <name>*/dev</name>
+        </hudson.plugins.git.BranchSpec>
+      </branches>
+      <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+      <submoduleCfg class="list"/>
+      <extensions>
+        <hudson.plugins.git.extensions.impl.CloneOption>
+          <shallow>true</shallow>
+          <noTags>true</noTags>
+          <reference></reference>
+          <timeout>40</timeout>
+          <depth>0</depth>
+        </hudson.plugins.git.extensions.impl.CloneOption>
+      </extensions>
+    </scm>
+    <scriptPath>JenkinsfileDEV.groovy</scriptPath>
+  </definition>
+  <triggers/>
+</flow-definition>
